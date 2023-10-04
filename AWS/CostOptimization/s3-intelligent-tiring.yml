@@ -1,0 +1,40 @@
+policies:
+- name: s3-apply-intelligent-tiering-config
+  description: |
+    Notifies customers about the buckets which have given intelligent tiering configuration.
+  resource: s3
+  filters:
+  - type: intelligent-tiering
+    attrs:
+    - Status: Enabled           # Disabled
+              # - Filter:
+              #     And:
+              #       Prefix: helloworld
+              #       Tags:
+              #         - Key: Hello
+              #           Value: World
+    - Tierings:
+      - Days: 90
+        AccessTier: ARCHIVE_ACCESS
+  actions:
+      # - type: set-intelligent-tiering
+      #   Id: my-intelligent-tiering-config
+      #   IntelligentTieringConfiguration:
+      #     Id:  my-intelligent-tiering-config
+      #     Status: Enabled #Disabled 
+      #     Tierings:
+      #       - Days: 180
+      #         AccessTier: ARCHIVE_ACCESS
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@nagarro.com
+    subject: ACTION REQUIRED | Lists the buckets which have intelligent tiering configuration
+      of 90 days ARCHIVE_ACCESS.
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(5 hours)
+    role: arn:aws:iam::200024982256:role/custodian

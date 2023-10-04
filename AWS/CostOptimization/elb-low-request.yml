@@ -1,0 +1,27 @@
+policies:
+- name: elb-low-request-count
+  resource: app-elb
+  filters:
+  - type: metrics
+    name: RequestCount
+    statistics: Sum
+    days: 7
+    value: 7
+    missing-value: 0
+    op: greater-than
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | List of Load Balancers with Low Request Count
+    violation_desc: 'The List of Load Balancers: '
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian

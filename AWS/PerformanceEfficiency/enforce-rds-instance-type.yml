@@ -1,0 +1,31 @@
+policies:
+  - name: enforce-rds-instance-type
+    resource: rds
+    description: |
+      This policy enforces that RDS instances are of type t2.micro or t2.small.
+    filters:
+      - type: value
+        key: "tag:Env"
+        value: "Dev"
+      - type: value
+        key: "DBInstanceClass"
+        op: in
+        value:
+          - "db.t2.micro"
+          - "db.t2.small"
+          - "db.t3.micro"
+          - "db.t3.small"
+    actions:
+    # - stop
+    - type: notify
+      to:
+      - soumya.de@nagarro.com
+      subject: Compliance Alert| RDS Instance Type Violation Detected and Stopped
+      template: default.html
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

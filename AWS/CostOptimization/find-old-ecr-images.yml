@@ -1,0 +1,27 @@
+policies:
+- name: ecr-images-older-than-30-days
+  description: |
+    Notifies customers about List of ECR images which are older than 30 days to take action on ECR images.
+  resource: ecr-image
+  filters:
+  - type: value
+    value_type: age
+    value: 30
+    op: ge
+    key: imagePushedAt
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | ECR Images Found Which Are Older Than 30 Days
+    violation_desc: "The List of ECR Images: "
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(9 hours)
+    role: arn:aws:iam::200024982256:role/custodian

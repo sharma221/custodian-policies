@@ -1,0 +1,27 @@
+policies:
+- name: terminate-unused-ec2-instances
+  description: Terminate unused EC2 instances
+  resource: ec2
+  filters:
+  - type: metrics
+    name: CPUUtilization
+    value: 70
+    op: greater-than
+  # - type: metrics
+  #   name: CPUUtilization
+  #   op: le
+  #   value: 1
+  #   days: 22
+  actions:
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@nagarro.com
+    subject: ACTION REQUIRED | List of unused EC2 instances present in AWS account
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian

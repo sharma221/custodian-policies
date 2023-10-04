@@ -1,0 +1,25 @@
+policies:
+- name: filter-unencrypted-s3-buckets
+  description: |
+    Filters out S3 buckets that are not encrypted
+  resource: s3
+  region: us-east-1
+  filters:
+  - type: bucket-encryption
+    state: false
+  actions:
+  - type: notify
+    template: default.html
+    subject: ACTION REQUIRED | You have Unencrypted S3 Bucket
+    violation_desc: "The List of S3 Buckets which are unencrypted:"
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(30 minutes)
+    role: arn:aws:iam::200024982256:role/custodian

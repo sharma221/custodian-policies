@@ -1,0 +1,31 @@
+policies:
+- name: ec2-disk-io-check
+  description: |
+    Check Amazon EC2 instances for average Disk I/O and take action if it exceeds a threshold.
+  resource: ec2
+  filters:
+  - type: value
+    key: State.Name
+    value: running
+  - type: metrics
+    name: DiskReadBytes
+    value: 1000
+    op: less-than
+  - type: metrics
+    name: DiskWriteBytes
+    value: 1000
+    op: less-than
+  actions:
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@gmail.com
+    subject: ACTION REQUIRED | EC2 instances for average Disk I/O and take action
+      if it exceeds a threshold
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(5 hours)
+    role: arn:aws:iam::200024982256:role/custodian

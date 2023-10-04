@@ -1,0 +1,25 @@
+policies:
+- name: overly_permissive_iam_users
+  description: |
+    This policy identifies IAM users with administrator-level access.
+  resource: iam-user
+  filters:
+  - type: policy
+    key: PolicyName
+    value: AdministratorAccess
+  actions:
+  - type: notify
+    template: default.html
+    subject: IAM Users Having Administrator Access
+    violation_desc: 'The List of users who have Administrator Access: '
+    action_desc: |
+      "Please investigate and revoke the access if not required"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian

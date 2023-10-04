@@ -1,0 +1,28 @@
+policies:
+- name: rotate-iam-keys
+  resource: iam-user
+  filters:
+  - type: access-key
+    key: Status
+    value: Active
+  - type: access-key
+    key: CreateDate
+    value_type: age
+    value: 90      # Number of days after which keys should be rotated
+    op: le
+  actions:
+  - type: notify
+    template: default.html
+    subject: ALERT | IAM Users using same keys for more than 90 Days
+    violation_desc: 'The List of IAM Users: '
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagaro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(10 hours)
+    role: arn:aws:iam::200024982256:role/custodian

@@ -1,0 +1,26 @@
+policies:
+- name: CO1011_ec2-nonbusiness-hour-running
+  description: |
+    Notifies customers about running EC2 instances at 6 PM to remind them to take action on the instances.
+  resource: ec2
+  filters:
+    # - "State.Name": running
+  - type: value
+    key: tag:Team
+    value: FinOps
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | Running EC2 Isntance(s) Found After Business Hours
+    violation_desc: 'The List of EC2 Instances: '
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian

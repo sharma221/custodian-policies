@@ -1,0 +1,24 @@
+policies:
+- name: notify-instances-without-tags-or-missing-specific-tags
+  resource: ec2
+  filters:
+  - or:
+    - 'tag:': absent
+  - and:
+    - tag:Team: absent
+  actions:
+  - type: notify
+    template: default.html
+    subject: Compliance Alert | EC2 Instances Missing Required Tag
+    violation_desc: "The List of EC2 Instances: "
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(3 hours)
+    role: arn:aws:iam::200024982256:role/custodian

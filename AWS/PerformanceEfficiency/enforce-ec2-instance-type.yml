@@ -1,0 +1,33 @@
+policies:
+  - name: enforce-ec2-instance-type
+    resource: ec2
+    description: |
+      This policy enforces that EC2 instances are of type t2.micro or t2.small.
+    filters:
+      - type: value
+        key: "tag:Env"
+        value: "Dev"
+      - type: value
+        key: "DBInstanceClass"
+        op: in
+        value:
+          - "t2.micro"
+          - "t2.small"
+          - "t2.nano"
+          - "t3.micro"
+          - "t3.small"
+          - "t3.nano"
+    actions:
+    # - stop
+    - type: notify
+      to:
+      - soumya.de@nagarro.com
+      subject: Compliance Alert| EC2 Instance Type Violation Detected and Stopped
+      template: default.html
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

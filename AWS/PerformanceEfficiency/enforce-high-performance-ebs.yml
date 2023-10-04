@@ -1,0 +1,26 @@
+policies:
+  - name: enforce-high-performance-ebs
+    resource: ebs
+    description: |
+      This policy enforces that EBS volumes use high-performance types (io1, io2, gp3).
+    filters:
+      - type: value
+        key: VolumeType
+        op: not-in
+        value: ["io1", "io2", "gp3"]
+    actions:
+      # - type: modify
+      #   parameters:
+      #     VolumeType: "gp3"
+      - type: notify
+        to:
+        - soumya.de@nagarro.com
+        subject: AWS Resource Update | EBS Volume Type Modified for High Performance
+        template: default.html
+        transport:
+          type: sqs
+          queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+        type: periodic
+        schedule: rate(7 hours)
+        role: arn:aws:iam::200024982256:role/custodian

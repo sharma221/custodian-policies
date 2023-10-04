@@ -1,0 +1,21 @@
+policies:
+  - name: enable-s3-bucket-replication
+    description: Ensure cross-region replication is enabled for designated S3 buckets
+    resource: s3
+    filters:
+      - type: value
+        key: Replication.Status
+        value: null  # Filter buckets with no replication status (not configured)
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | Ensure replication is enabled for designated S3 buckets
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

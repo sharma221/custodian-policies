@@ -1,0 +1,3 @@
+queue_url: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+#role: arn:aws:iam::515302636750:role/custodian-lambda
+from_address: soumya.de@nagarro.com

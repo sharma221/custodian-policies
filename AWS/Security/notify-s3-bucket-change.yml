@@ -1,0 +1,28 @@
+policies:
+  - name: notify-s3-bucket-change
+    description: |
+      Notifies about changes in S3 buckets.
+    resource: s3
+    filters:
+      - type: event
+        events:
+          - create
+          - delete
+          - update
+    actions:
+    - type: notify
+      template: default.html
+      subject: ALERT | Changes in S3 Buckets Detected
+      violation_desc: "The List of S3 Buckets Detected Changes: "
+      action_desc: |
+          "Please Investigate and Take Action"
+      to:
+        - soumya.de@nagarro.com
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+        type: periodic
+        schedule: rate(7 hours)
+        role: arn:aws:iam::200024982256:role/custodian
+

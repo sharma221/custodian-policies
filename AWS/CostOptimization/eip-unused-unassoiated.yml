@@ -1,0 +1,25 @@
+policies:
+- name: filter-unused-eips
+  description: |
+    Filters out unused and unattached Elastic IP addresses (EIPs).
+  resource: elastic-ip
+  filters:
+  - type: value
+    key: attachment.State
+    value:
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | Unused & Unassoiated ElsticIPs Found
+    violation_desc: "The List of EIPs: "
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(5 hours)
+    role: arn:aws:iam::200024982256:role/custodian

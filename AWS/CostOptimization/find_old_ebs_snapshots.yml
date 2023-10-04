@@ -1,0 +1,25 @@
+policies:
+- name: find_old_ebs_snapshots
+  description: |
+    Notifies Customer about 30 days Old EBS Snapshots
+  resource: ebs-snapshot
+  filters:
+  - type: age
+    days: 1
+    op: ge
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | Found EBS Snaphots Which Are Older Than 60 Days
+    violation_desc: 'The List of EBS Snaphots: '
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(7 hours)
+    role: arn:aws:iam::200024982256:role/custodian

@@ -1,0 +1,28 @@
+policies:
+- name: redshift-underutilized
+  resource: redshift
+  description: |
+    Notifies customers about Underutilized redshift-clusters.
+  filters:
+    - type: metrics
+      name: CPUUtilization
+      days: 4
+      period: 86400
+      value: 30
+      op: less-than
+  actions:
+  - type: notify
+    template: default.html
+    subject: Action Required | List Of  Underutilized Redshift Clusters
+    violation_desc: "The List of Redshift Clusters: "
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(6 hours)
+    role: arn:aws:iam::200024982256:role/custodian

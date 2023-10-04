@@ -1,0 +1,29 @@
+policies:
+- name: notify-unattached-ebs-volumes
+  resource: ebs
+  description: |
+    Notifies about unattached EBS volumes.
+  filters:
+  - type: value
+    key: State
+    value: available
+  - type: value
+    key: Attachments
+    op: eq
+    value: []
+  actions:
+  - type: notify
+    template: default.html
+    subject: Compliance Alert | Found Unattached EBS volumes
+    violation_desc: 'The List of EBS Volumes: '
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian

@@ -1,0 +1,23 @@
+policies:
+  - name: enforce-provisioned-iops-for-rds
+    resource: rds
+    description: |
+      This policy enforces that RDS instances use Provisioned IOPS storage types (io1 or io2).
+    filters:
+      - type: value
+        key: StorageType
+        op: not-in
+        value: ["io1", "io2"]
+    actions:
+    - type: notify
+      to:
+      - soumya.de@nagarro.com
+      subject: Compliance Alert | RDS Provisioned IOPS Policy Violation Corrected
+      template: default.html
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

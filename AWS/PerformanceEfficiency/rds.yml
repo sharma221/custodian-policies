@@ -1,0 +1,25 @@
+policies:
+- name: enforce-rds-instance
+  description: Filter low CPU consumed RDS Instances
+  resource: rds
+  filters:
+  - type: metrics
+    name: CPUUtilization
+    value: 10
+    op: less-than
+    # actions:
+    #   - type: modify-db-instance
+    #     instance-class: db.t3.medium
+  actions:
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@nagarro.com
+    subject: ACTION REQUIRED | EC2 Instances Running in Non-Business Hours
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(6 hours)
+    role: arn:aws:iam::200024982256:role/custodian

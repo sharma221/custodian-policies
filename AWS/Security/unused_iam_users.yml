@@ -1,0 +1,31 @@
+policies:
+  - name: remove-unused-iam-user-credentials
+    description: |
+      Removes IAM user credentials that have not been used for a specified number of days.
+    resource: iam-user
+    filters:
+      - type: usage
+        match-operator: any
+        #LastAuthenticated: null  # null represents those users who aren't used
+        LastAuthenticated:
+        # the below represents those users who have used services recently
+          type: value
+          value_type: age
+          op: ge
+          value: 30
+    actions:
+    - type: notify
+      template: default.html
+      subject: Action Required | IAM Users who have not used any AWS services since last 30 days
+      violation_desc: "The List of IAM Users: "
+      action_desc: |
+          "Please Investigate and Take Action"
+      to:
+        - soumya.de@nagarro.com
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(6 hours)
+      role: arn:aws:iam::200024982256:role/custodian

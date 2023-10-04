@@ -1,0 +1,22 @@
+policies:
+  - name: enforce-rds-multi-az
+    resource: rds
+    description: |
+      This policy enforces that RDS instances having multi-az enabled.
+    filters:
+      - "MultiAZ": false
+    actions:
+      - type: modify-db
+        MultiAZ: true
+      - type: notify
+        to:
+        - soumya.de@nagarro.com
+        subject: Enable Multi-AZ on RDS Instances
+        template: default.html
+        transport:
+          type: sqs
+          queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+        type: periodic
+        schedule: rate(7 hours)
+        role: arn:aws:iam::200024982256:role/custodian

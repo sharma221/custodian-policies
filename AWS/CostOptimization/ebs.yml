@@ -1,0 +1,22 @@
+policies:
+- name: old-ebs-snapshots
+  description: |
+    Notifies Customer about 30 days Old EBS Snapshots
+  resource: ebs-snapshot
+  filters:
+  - type: age
+    days: 30
+    op: le
+  actions:
+  - type: notify
+    to:
+    - soumya.de@nagarro.com
+    subject: URGENT | Notification of EBS Snapshots which are 30 days old
+    template: finops.html
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(7 hours)
+    role: arn:aws:iam::200024982256:role/custodian

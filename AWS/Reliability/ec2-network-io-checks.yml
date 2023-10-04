@@ -1,0 +1,23 @@
+policies:
+  - name: ec2-network-io-check
+    description: |
+      Check Amazon EC2 instances for network I/O average and take action if it exceeds a threshold.
+    resource: ec2
+    filters:
+      - type: metrics
+        name: NetworkIn
+        value: 100  # Replace with your desired threshold in bytes per second
+        op: less-than  # You can adjust the comparison operator as needed
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | Amazon EC2 instances for network I/O average and take action if it exceeds a threshold
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

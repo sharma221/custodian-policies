@@ -1,0 +1,29 @@
+policies:
+  - name: notify-public-ebs-snapshots
+    description: |
+      Notifies about EBS snapshots that are marked as public.
+    resource: aws.ebs-snapshot
+    region: us-east-1
+    filters:
+      - type: value
+        key: Encrypted
+        value: false  # Filters out unencrypted snapshots
+      - type: cross-account
+        whitelist:
+          - "200024982256"  # Replace with the AWS account ID you want to check for public snapshots
+    actions:
+    - type: notify
+      template: default.html
+      subject: Compliance Alert | EBS Snapshots with Public Accss Found
+      violation_desc: "The List EBS Snapshots which are publicly accessible:"
+      action_desc: |
+          "Please Investigate and Take Action"
+      to:
+        - soumya.de@nagarro.com
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(4 hours)
+      role: arn:aws:iam::200024982256:role/custodian

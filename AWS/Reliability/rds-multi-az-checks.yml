@@ -1,0 +1,22 @@
+policies:
+  - name: rds-multi-az-checks
+    resource: rds
+    description: |
+      Check if Amazon RDS instances are deployed in a Multi-AZ configuration.
+    filters:
+      - type: value
+        key: MultiAZ
+        value: true
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | RDS instances are deployed in a Multi-AZ configuration
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

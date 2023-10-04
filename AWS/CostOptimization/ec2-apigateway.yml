@@ -1,0 +1,24 @@
+policies:
+- name: apigw
+  resource: aws.apigwv2
+  filters:
+  - type: metrics
+    name: Count
+    statistics: Sum
+    days: 7
+    value: 7
+    missing-value: 0
+    op: greater-than
+  actions:
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@nagarro.com
+    subject: ACTION REQUIRED | EC2 Instances Running in Non-Business Hours
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(3 hours)
+    role: arn:aws:iam::200024982256:role/custodian

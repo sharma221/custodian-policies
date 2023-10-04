@@ -1,0 +1,10 @@
+policies:
+  - name: monitor-network-io
+    resource: ec2
+    filters:
+      - type: metrics
+        name: NetworkOut
+        value: 100
+        op: greater-than
+        #aggregation: average
+        period: 3600  # 1 hour

@@ -1,0 +1,30 @@
+policies:
+  - name: rds-instance-no-auto-recovery
+    resource: rds
+    description: |
+      Check for RDS instances that are not configured for auto-recovery.
+    filters:
+      - type: value
+        key: DBInstanceStatus
+        op: in
+        value:
+          - available
+          - stopped
+      - type: value
+        key: AutoMinorVersionUpgrade
+        op: in
+        value:
+          - false
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | RDS instances that are not configured for auto-recovery
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

@@ -1,0 +1,55 @@
+policies:
+   - name: s3-configure-standards-real-time
+     resource: s3
+     description: |
+       This policy is triggered when a new S3 bucket is created and it applies
+       the AWS AES256 Default Bucket Encryption, enables
+       object versioning, configures the bucket lifecycle and enables logging.
+     filters:
+       - "tag:team": "finops"
+      #  - "tag:project": "custodian"
+     actions:
+      - type: configure-lifecycle
+        rules:
+          - ID: company-s3-lifecycle
+            Status: Enabled
+            Filter:
+               Prefix: /
+            Transitions:
+              - Days: 30
+                StorageClass: STANDARD_IA
+      - type: notify
+        template: default.html
+        subject: Action Required | Enables Lifecycle Policy To The Filtered Buckets
+        violation_desc: "The List of S3 Buckets: "
+        action_desc: |
+            "Please Investigate and Take Action"
+        to:
+          - soumya.de@nagarro.com
+        transport:
+          type: sqs
+          queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+     mode:
+        type: periodic
+        schedule: rate(6 hours)
+        role: arn:aws:iam::200024982256:role/custodian
+        
+      #  - type: auto-tag-user
+      #    tag: CreatorName
+      #  - type: set-bucket-encryption
+      #  - type: toggle-versioning
+      #    enabled: true
+      #  - type: toggle-logging
+      #    target_bucket: "{account_id}-{region}-s3-logs"
+      #    target_prefix: "{source_bucket_name}/"
+
+
+      # 
+
+
+            # NoncurrentVersionExpiration:
+            #     NoncurrentDays: 35
+
+
+# Note: Configures lifecycle for the filtered buckets.
+

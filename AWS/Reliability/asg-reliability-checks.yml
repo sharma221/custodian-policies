@@ -1,0 +1,27 @@
+policies:
+- name: asg-reliability-check
+  description: |
+    Check the reliability of an Auto Scaling Group (ASG) by ensuring it has a minimum number of healthy instances.
+  resource: asg
+  filters:
+  - type: value
+    key: Instances[?LifecycleState=='InService'].HealthStatus
+    op: ne
+    value: Healthy      # Ensures there are healthy instances
+  - type: value
+    key: Instances[?LifecycleState=='InService'].HealthStatus
+    op: not-equal
+    value: Unhealthy      # Replace with your desired health status criteria
+  actions:
+  - type: notify
+    template: default.html
+    to:
+    - soumya.de@nagarro.com
+    subject: ACTION REQUIRED | Auto Scaling Groups having healty intances
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(6 hours)
+    role: arn:aws:iam::200024982256:role/custodian

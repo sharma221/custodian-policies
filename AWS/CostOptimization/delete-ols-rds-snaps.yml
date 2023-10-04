@@ -1,0 +1,25 @@
+policies:
+  - name: delete-old-rds-snapshots
+    resource: rds-snapshot
+    filters:
+      #- or
+      - type: age
+        days: 120
+        op: ge
+      - "tag:Name": present
+    actions:
+    - type: notify
+      template: default.html
+      subject: Action Required | RDS Snapshots Found Which Are More Than 120 Days Old
+      violation_desc: "The List of RDS Snapshots: "
+      action_desc: |
+          "Please Investigate and Take Action"
+      to:
+        - soumya.de@nagarro.com
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

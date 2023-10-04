@@ -1,0 +1,26 @@
+policies:
+- name: get-kms-key-state
+  resource: kms-key
+  description: |
+    Notifies customers about unused KMS keys.
+  filters:
+    - type: value
+      key: KeyState
+      value: Disabled
+  actions:
+    - type: notify
+      template: default.html
+      subject: Compliance Alert | KMS Keys Found which Are Not In Use
+      violation_desc: "The List of KMS Keys: "
+      action_desc: |
+          "Please Investigate and Take Action"
+      to:
+        - soumya.de@nagarro.com
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+        type: periodic
+        schedule: rate(6 hours)
+        role: arn:aws:iam::200024982256:role/custodian
+

@@ -1,0 +1,21 @@
+policies:
+  - name: rds-backup-retention
+    description: Enforce RDS backup retention
+    resource: rds
+    filters:
+      - type: value
+        key: BackupRetentionPeriod
+        value: 7  # Adjust retention period as needed (in days)
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | RDS backup Retention Period
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

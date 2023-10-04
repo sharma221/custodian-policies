@@ -1,0 +1,27 @@
+policies:
+- name: stop-idle-ec2-instances
+  resource: ec2
+  filters:
+  - type: metrics
+    name: CPUUtilization
+    value: 1
+    op: less-than
+        # aggregation: average
+        # period: 86400  # 24 hours
+  actions:
+  # - stop
+  - type: notify
+    template: default.html
+    subject: Action Required | EC2 Instances whose CPU Utilization is less than 10%
+    violation_desc: "The List of EC2 Instances: "
+    action_desc: |
+        "Please Investigate and Take Action"
+    to:
+      - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(9 hours)
+    role: arn:aws:iam::200024982256:role/custodian

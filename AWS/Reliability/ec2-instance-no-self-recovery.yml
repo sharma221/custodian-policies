@@ -1,0 +1,25 @@
+policies:
+  - name: ec2-instance-no-auto-recovery
+    resource: ec2
+    description: |
+      Check for EC2 instances that do not have auto-recovery configured.
+    filters:
+      - not:
+          - type: value
+            key: InstanceInitiatedShutdownBehavior
+            op: eq
+            value: TERMINATE
+      - State.Name: running
+    actions:
+    - type: notify
+      template: default.html
+      to:
+      - soumya.de@nagarro.com
+      subject: ACTION REQUIRED | EC2 instances that do not have auto-recovery configured
+      transport:
+        type: sqs
+        queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+    mode:
+      type: periodic
+      schedule: rate(7 hours)
+      role: arn:aws:iam::200024982256:role/custodian

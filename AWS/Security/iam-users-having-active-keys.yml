@@ -1,0 +1,22 @@
+    policies:
+      - name: iam-users-with-active-keys
+        resource: iam-user
+        filters:
+          - type: access-key
+            key: Status
+            value: Active
+          - type: access-key
+            match-operator: and
+            key: CreateDate
+            value_type: age
+            value: 90
+            op: ge
+        actions:
+          - type: notify
+            to:
+              - your-email@example.com
+            subject: ALERT | IAM User(s) having much older acces-keys
+            template: default.html
+            transport:
+              type: sqs
+              queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue

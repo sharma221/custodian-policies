@@ -1,0 +1,30 @@
+policies:
+- name: identify-unrestricted-securitygroup
+  description: This policy detects AWS security groups with unrestricted access to
+    specified ports and takes defined actions.
+  resource: security-group
+  filters:
+  - type: ingress
+          #IpProtocol: -1
+    Cidr: 0.0.0.0/0
+    Ports: [22, 443, 80, 5432]
+      # - type: ingress
+      #   CidrV6: "::/0"
+
+  actions:
+  - type: notify
+    template: default.html
+    subject: Compliance Alert | Unrestricted Access to Specific Ports Detected
+    violation_desc: 'The List Security Groups Having Unrestricte Access to Ports[22,
+      443, 80, 5432]:'
+    action_desc: |
+      "Please Investigate and Take Action"
+    to:
+    - soumya.de@nagarro.com
+    transport:
+      type: sqs
+      queue: https://sqs.us-east-1.amazonaws.com/200024982256/MyQueue
+  mode:
+    type: periodic
+    schedule: rate(8 hours)
+    role: arn:aws:iam::200024982256:role/custodian
